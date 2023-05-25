@@ -8,7 +8,7 @@ namespace SuperShopBrunoFerreira.Data.Entity
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(50, ErrorMessage = "The field {0} can only contain up to {1} characters.")]
+        [MaxLength(50, ErrorMessage = "The field {0} can only contain up to {1} characters.")] // The field locks out at 50, error message not showing, just here as a fallback.
         public string Name { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:C2}", ApplyFormatInEditMode = false)]
