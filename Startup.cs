@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SuperShopBrunoFerreira.Data;
+using System.ComponentModel;
 
 namespace SuperShopBrunoFerreira
 {
@@ -26,6 +27,7 @@ namespace SuperShopBrunoFerreira
             });
 
             services.AddTransient<SeedDb>();
+            services.AddScoped<IProductRepository, ProductRepository>();
 
             services.AddControllersWithViews();
         }

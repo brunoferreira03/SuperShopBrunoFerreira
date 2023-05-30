@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SuperShopBrunoFerreira.Data.Entity
 {
-    public class Product
+    public class Product : iEntity
     {
         public int Id { get; set; }
 
