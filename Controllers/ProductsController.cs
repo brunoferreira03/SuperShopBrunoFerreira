@@ -4,24 +4,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SuperShopBrunoFerreira.Data;
 using SuperShopBrunoFerreira.Data.Entity;
-
+using SuperShopBrunoFerreira.Helpers;
 
 namespace SuperShopBrunoFerreira.Controllers
 {
     public class ProductsController : Controller
     {
         private readonly IProductRepository _productRepository;
+        private readonly IUserHelper _userHelper;
 
-        public ProductsController(IProductRepository productRepository)
+        public ProductsController(IProductRepository productRepository, IUserHelper userHelper)
         {
 
             _productRepository = productRepository;
+            _userHelper = userHelper;
         }
 
         // GET: Products
         public async Task<IActionResult> Index()
         {
-            return View(_productRepository.GetAll());
+            return View(_productRepository.GetAll().OrderBy(e => e.Name));
         }
 
         // GET: Products/Details/5
@@ -52,6 +54,8 @@ namespace SuperShopBrunoFerreira.Controllers
         {
             if (ModelState.IsValid)
             {
+                //Todo: Change so that the attached user is the one that's logged in.
+                product.User = await _userHelper.GetUserByEmailAsync("bff3rreira03@gmail.com");
                 await _productRepository.CreateAsync(product);
                 return RedirectToAction(nameof(Index));
             }
@@ -90,6 +94,8 @@ namespace SuperShopBrunoFerreira.Controllers
             {
                 try
                 {
+                    //Todo: Change so that the attached user is the one that's logged in.
+                    product.User = await _userHelper.GetUserByEmailAsync("bff3rreira03@gmail.com");
                     await _productRepository.UpdateAsync(product);
                 }
                 catch (DbUpdateConcurrencyException)

@@ -1,10 +1,13 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SuperShopBrunoFerreira.Data;
+using SuperShopBrunoFerreira.Data.Entity;
+using SuperShopBrunoFerreira.Helpers;
 using System.ComponentModel;
 
 namespace SuperShopBrunoFerreira
@@ -21,13 +24,26 @@ namespace SuperShopBrunoFerreira
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddIdentity<User, IdentityRole>(config =>
+            {
+                config.User.RequireUniqueEmail = true;
+                config.Password.RequireDigit = false;
+                config.Password.RequiredUniqueChars = 0;
+                config.Password.RequireUppercase = false;
+                config.Password.RequireLowercase = false;
+                config.Password.RequireNonAlphanumeric = false;
+                config.Password.RequiredLength = 6;
+            }).AddEntityFrameworkStores<DataContext>();
+
             services.AddDbContext<DataContext>(config =>
             {
                 config.UseSqlServer(this.Configuration.GetConnectionString("DefaultConnection"));
             });
 
             services.AddTransient<SeedDb>();
+            services.AddScoped<IUserHelper, UserHelper>();
             services.AddScoped<IProductRepository, ProductRepository>();
+
 
             services.AddControllersWithViews();
         }
@@ -49,6 +65,7 @@ namespace SuperShopBrunoFerreira
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseAuthentication();
 
             app.UseAuthorization();
 
