@@ -15,16 +15,22 @@ namespace SuperShopBrunoFerreira.Controllers
     {
         private readonly IProductRepository _productRepository;
         private readonly IUserHelper _userHelper;
+        private readonly IImageHelper _imageHelper;
+        private readonly IConverterHelper _converterHelper;
 
-        public ProductsController(IProductRepository productRepository, IUserHelper userHelper)
+        public ProductsController(IProductRepository productRepository, 
+            IUserHelper userHelper, IImageHelper imageHelper,
+            IConverterHelper converterHelper)
         {
 
             _productRepository = productRepository;
             _userHelper = userHelper;
+            _imageHelper = imageHelper;
+            _converterHelper = converterHelper;
         }
 
         // GET: Products
-        public async Task<IActionResult> Index()
+        public IActionResult Index()
         {
             return View(_productRepository.GetAll().OrderBy(e => e.Name));
         }
@@ -61,20 +67,10 @@ namespace SuperShopBrunoFerreira.Controllers
 
                 if (model.ImageFile != null && model.ImageFile.Length > 0)
                 {
-                    path = Path.Combine(
-                        Directory.GetCurrentDirectory(),
-                        "wwwroot\\images\\products",
-                        model.ImageFile.FileName);
-
-                    using (var stream = new FileStream(path, FileMode.Create))
-                    {
-                        await model.ImageFile.CopyToAsync(stream);
-                    }
-
-                    path = $"~/images/products/{model.ImageFile.FileName}";
+                    path = await _imageHelper.UploadImageAsync(model.ImageFile, "products");
                 }
 
-                var product = this.ToProduct(model, path);
+                var product = _converterHelper.ToProduct(model, path, true); //this.ToProduct(model, path);
 
                 //TODO: Modificar para o user que tiver logado
                 product.User = await _userHelper.GetUserByEmailAsync("bff3rreira03@gmail.com");
@@ -98,25 +94,8 @@ namespace SuperShopBrunoFerreira.Controllers
                 return NotFound();
             }
 
-            var model = this.ToProductViewModel(product);
+            var model = _converterHelper.ToProductViewModel(product); // this.ToProductViewModel(product);
             return View(model);
-        }
-
-        private ProductsViewModel ToProductViewModel(Product product)
-        {
-            return new ProductsViewModel
-            {
-                Id = product.Id,
-                IsAvailable = product.IsAvailable,
-                LastPurchase = product.LastPurchase,
-                LastSale = product.LastSale,
-                ImageURL = product.ImageURL,
-                Name = product.Name,
-                Price = product.Price,
-                Stock = product.Stock,
-                User = product.User,
-            };
-
         }
 
         // POST: Products/Edit/5
@@ -136,23 +115,10 @@ namespace SuperShopBrunoFerreira.Controllers
 
                     if (model.ImageFile != null && model.ImageFile.Length > 0)
                     {
-                        var guid = Guid.NewGuid().ToString();
-                        var file = $"{guid}.jpg";
-
-                        path = Path.Combine(
-                            Directory.GetCurrentDirectory(),
-                            "wwwroot\\images\\products",
-                            file);
-
-                        using (var stream = new FileStream(path, FileMode.Create))
-                        {
-                            await model.ImageFile.CopyToAsync(stream);
-                        }
-
-                        path = $"~/image/products/{file}";
+                        path = await _imageHelper.UploadImageAsync(model.ImageFile, "products");
                     }
 
-                    var product = this.ToProduct(model, path);
+                    var product = _converterHelper.ToProduct(model, path, false); //this.ToProduct(model, path);
 
                     //TODO: Modificar para o user que tiver logado
                     product.User = await _userHelper.GetUserByEmailAsync("bff3rreira03@gmail.com");
@@ -199,23 +165,6 @@ namespace SuperShopBrunoFerreira.Controllers
             var product = await _productRepository.GetByIdAsync(id);
             await _productRepository.DeleteAsync(product);
             return RedirectToAction(nameof(Index));
-        }
-
-        private Product ToProduct(ProductsViewModel model, string path)
-        {
-            return new Product
-            {
-                Id = model.Id,
-                ImageURL = path,
-                IsAvailable = model.IsAvailable,
-                LastPurchase = model.LastPurchase,
-                LastSale = model.LastSale,
-                Name = model.Name,
-                Price = model.Price,
-                Stock = model.Stock,
-                User = model.User,
-            };
-
         }
 
     }
