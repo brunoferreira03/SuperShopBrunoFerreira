@@ -30,5 +30,17 @@ namespace SuperShopBrunoFerreira.Data.Entity
         public double Stock { get; set; }
 
         public User User { get; set; }
+
+        public string ImageFullPath
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(ImageURL))
+                    return null;
+
+                return $"https://localhost:44372{ImageURL.Substring(1)}";
+            }
+
+        }
     }
 }

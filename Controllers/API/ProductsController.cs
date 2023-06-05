@@ -19,7 +19,7 @@ namespace SuperShopBrunoFerreira.Controllers.API
         [HttpGet]
         public IActionResult GetProducts()
         {
-            return Ok(_productRepository.GetAll());
+            return Ok(_productRepository.GetAllWithUsers());
         }
     }
 }

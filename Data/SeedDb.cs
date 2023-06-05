@@ -33,7 +33,7 @@ namespace SuperShopBrunoFerreira.Data
                     LastName = "Ferreira",
                     Email = "bff3rreira03@gmail.com",
                     UserName = "bff3rreira03@gmail.com",
-                    PhoneNumber = "1234567890",
+                    PhoneNumber = "123456789",
                 };
 
                 var result = await _userHelper.AddUserAsycn(user, "123456");
